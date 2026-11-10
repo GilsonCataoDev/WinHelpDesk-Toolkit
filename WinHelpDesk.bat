@@ -43,25 +43,27 @@ cls
 echo ===============================================================================
 echo   =========================================================================
 echo   *                     WINHELPDESK TOOLKIT 2026                          *
-echo   *                 CENTRAL DE SUPORTE TECNICO E TI                       *
+echo   *           CENTRAL COMPLETA DE SUPORTE TECNICO & HELP DESK             *
 echo   =========================================================================
 echo ===============================================================================
 echo  Usuario: %USERNAME%       Computador: %COMPUTERNAME%       Data: %DATE%
 echo ===============================================================================
 echo.
-echo   [1]  Rede, Internet e Conectividade
-echo   [2]  Reparo do Sistema e Windows Update
+echo   [1]  Rede, Internet e Conectividade (IP, DNS, Wi-Fi, Reset de Rede)
+echo   [2]  Reparo do Sistema, Windows Update e Winget (SFC, DISM, Updates)
 echo   [3]  Impressao e Destravamento de Spooler
-echo   [4]  Limpeza de Disco, Cache e Otimizacao
-echo   [5]  Diagnostico de Hardware, Bateria e Licenciamento
-echo   [6]  Contas de Usuario, Restauracao e GPO [Dominio]
-echo   [7]  Central de Ferramentas Administrativas [MSC / CPL]
-echo   [8]  MODO VARREDURA AUTOMATICA [Quick Fix Completo]
+echo   [4]  Limpeza de Disco, Cache, TRIM e Otimizacao de Energia
+echo   [5]  Diagnostico de Hardware, Saude de SSD/Disco, BIOS e Bateria
+echo   [6]  Contas de Usuario, Senhas Locais, Restauracao e GPO
+echo   [7]  Audio, Bluetooth, Servicos e Perifericos (Reiniciar Som/Drivers)
+echo   [8]  Seguranca, Windows Defender e Firewall
+echo   [9]  Central de Ferramentas Administrativas [MSC / CPL]
+echo  [10]  MODO VARREDURA AUTOMATICA [Quick Fix N1 Completo]
 echo.
 echo   [0]  Sair do WinHelpDesk
 echo ===============================================================================
 set "opt="
-set /p opt="Escolha uma categoria [0-8]: "
+set /p opt="Escolha uma categoria [0-10]: "
 
 if "%opt%"=="1" goto MENU_REDE
 if "%opt%"=="2" goto MENU_SISTEMA
@@ -69,8 +71,10 @@ if "%opt%"=="3" goto MENU_IMPRESSAO
 if "%opt%"=="4" goto MENU_LIMPEZA
 if "%opt%"=="5" goto MENU_HARDWARE
 if "%opt%"=="6" goto MENU_USUARIO_GPO
-if "%opt%"=="7" goto MENU_ATALHOS
-if "%opt%"=="8" goto VARREDURA_AUTO
+if "%opt%"=="7" goto MENU_AUDIO_PERIF
+if "%opt%"=="8" goto MENU_SEGURANCA
+if "%opt%"=="9" goto MENU_ATALHOS
+if "%opt%"=="10" goto VARREDURA_AUTO
 if "%opt%"=="0" goto SAIR
 
 echo [ERRO] Opcao invalida. Tente novamente.
@@ -87,28 +91,36 @@ echo ===========================================================================
 echo                      [1] REDE, INTERNET E CONECTIVIDADE
 echo ===============================================================================
 echo.
-echo   1. Informacoes Completas de Rede (IP, Gateway, DNS, MAC)
-echo   2. Teste de Conectividade Completo (Ping Roteador, Google, Cloudflare)
-echo   3. Limpar Cache DNS (ipconfig /flushdns)
-echo   4. Liberar e Renovar Endereco IP (Release / Renew)
-echo   5. Resetar Pilha TCP/IP e Catalogo Winsock
-echo   6. Listar Portas Abertas e Conexoes Ativas (netstat)
-echo   7. Visualizar Senhas de Redes Wi-Fi Salvas
-echo   8. Alterar DNS Rapidamente (Google 8.8.8.8 / Cloudflare 1.1.1.1 / DHCP)
+echo   1. Informacoes de Rede Local (IP, Mascara, Gateway, DNS, MAC)
+echo   2. Consultar Endereco IP Publico / Externo (Provedor)
+echo   3. Teste de Conectividade e Latencia (Ping Google, Cloudflare, Gateway)
+echo   4. Rastreamento de Rota de Pacotes (Tracert para 8.8.8.8)
+echo   5. Limpar Cache do Resolvedor DNS (ipconfig /flushdns)
+echo   6. Liberar e Renovar Endereco IP (Release / Renew)
+echo   7. Resetar Pilha TCP/IP e Catalogo Winsock (Restauracao completa de rede)
+echo   8. Reiniciar Adaptadores de Rede Ativos (Desativa e reativa placas de rede)
+echo   9. Visualizar Senhas de Redes Wi-Fi Salvas neste PC
+echo  10. Fazer Backup das Chaves Wi-Fi em XML na Area de Trabalho
+echo  11. Alterar DNS Rapidamente (Google 8.8.8.8 / Cloudflare 1.1.1.1 / DHCP)
+echo  12. Listar Portas Abertas e Conexoes Ativas (netstat -ano)
 echo.
 echo   0. Voltar ao Menu Principal
 echo ===============================================================================
 set "opt_rede="
-set /p opt_rede="Escolha uma opcao [0-8]: "
+set /p opt_rede="Escolha uma opcao [0-12]: "
 
 if "%opt_rede%"=="1" goto REDE_INFO
-if "%opt_rede%"=="2" goto REDE_PING
-if "%opt_rede%"=="3" goto REDE_FLUSHDNS
-if "%opt_rede%"=="4" goto REDE_RENEW
-if "%opt_rede%"=="5" goto REDE_RESET
-if "%opt_rede%"=="6" goto REDE_NETSTAT
-if "%opt_rede%"=="7" goto REDE_WIFI
-if "%opt_rede%"=="8" goto REDE_MUDAR_DNS
+if "%opt_rede%"=="2" goto REDE_IP_PUBLICO
+if "%opt_rede%"=="3" goto REDE_PING
+if "%opt_rede%"=="4" goto REDE_TRACERT
+if "%opt_rede%"=="5" goto REDE_FLUSHDNS
+if "%opt_rede%"=="6" goto REDE_RENEW
+if "%opt_rede%"=="7" goto REDE_RESET
+if "%opt_rede%"=="8" goto REDE_RESTART_ADAPTERS
+if "%opt_rede%"=="9" goto REDE_WIFI
+if "%opt_rede%"=="10" goto REDE_BACKUP_WIFI
+if "%opt_rede%"=="11" goto REDE_MUDAR_DNS
+if "%opt_rede%"=="12" goto REDE_NETSTAT
 if "%opt_rede%"=="0" goto MAIN_MENU
 goto MENU_REDE
 
@@ -118,6 +130,17 @@ echo ===========================================================================
 echo CONFIGURACOES DE REDE DETALHADAS:
 echo ===============================================================================
 ipconfig /all
+echo.
+pause
+goto MENU_REDE
+
+:REDE_IP_PUBLICO
+cls
+echo ===============================================================================
+echo CONSULTANDO IP PUBLICO / EXTERNO NA INTERNET:
+echo ===============================================================================
+echo Aguarde...
+powershell -NoProfile -Command "try { $ip = (Invoke-RestMethod -Uri 'https://api.ipify.org' -TimeoutSec 4).Trim(); Write-Host 'Seu IP Publico e:' -ForegroundColor Green; Write-Host $ip -ForegroundColor Yellow } catch { Write-Host 'Nao foi possivel obter o IP publico. Verifique a conexao com a internet.' -ForegroundColor Red }"
 echo.
 pause
 goto MENU_REDE
@@ -135,6 +158,17 @@ ping -n 4 1.1.1.1
 echo.
 echo [3/3] Testando resolucao de nomes (www.google.com)...
 ping -n 4 www.google.com
+echo.
+pause
+goto MENU_REDE
+
+:REDE_TRACERT
+cls
+echo ===============================================================================
+echo RASTREANDO ROTA DE REDE (TRACERT PARA 8.8.8.8)
+echo (Pressione Ctrl+C para interromper a qualquer momento)
+echo ===============================================================================
+tracert -d -h 15 8.8.8.8
 echo.
 pause
 goto MENU_REDE
@@ -180,12 +214,14 @@ echo.
 pause
 goto MENU_REDE
 
-:REDE_NETSTAT
+:REDE_RESTART_ADAPTERS
 cls
-echo Listando conexoes ativas e portas ouvindo (Pressione Ctrl+C para interromper)...
+echo ===============================================================================
+echo REINICIANDO ADAPTADORES DE REDE ATIVOS (RESET DE PLACA)
+echo ===============================================================================
+powershell -NoProfile -Command "Get-NetAdapter | Where-Object Status -eq 'Up' | ForEach-Object { Write-Host 'Reiniciando adaptador:' $_.Name; Restart-NetAdapter -Name $_.Name -Confirm:$false }"
 echo.
-netstat -ano | more
-echo.
+echo [OK] Adaptadores reiniciados com sucesso!
 pause
 goto MENU_REDE
 
@@ -199,6 +235,17 @@ echo do responsavel. As senhas serao exibidas na tela.
 set /p CONF_WIFI=Deseja continuar? (S/N): 
 if /i not "%CONF_WIFI%"=="S" goto MENU_REDE
 powershell -NoProfile -Command "(netsh wlan show profiles) | Select-String '\:(.+)$' | ForEach-Object { $name = $_.Matches.Groups[1].Value.Trim(); $_ } | ForEach-Object { $profile = (netsh wlan show profile name=\"$name\" key=clear); $pass = ($profile | Select-String 'Key Content\s*:\s*(.+)$'); if ($pass) { [PSCustomObject]@{ 'Rede Wi-Fi' = $name; 'Senha' = $pass.Matches.Groups[1].Value.Trim() } } else { [PSCustomObject]@{ 'Rede Wi-Fi' = $name; 'Senha' = '[Sem Senha / Aberta]' } } } | Format-Table -AutoSize"
+echo.
+pause
+goto MENU_REDE
+
+:REDE_BACKUP_WIFI
+cls
+echo ===============================================================================
+echo EXPORTANDO PERFIS E CHAVES DE WI-FI PARA A AREA DE TRABALHO
+echo ===============================================================================
+netsh wlan export profile folder="%USERPROFILE%\Desktop" key=clear >nul 2>&1
+echo [OK] Perfis de rede Wi-Fi salvos em formato XML na sua Area de Trabalho!
 echo.
 pause
 goto MENU_REDE
@@ -238,6 +285,15 @@ echo [OK] DNS restaurado para obtencao automatica [DHCP]
 pause
 goto MENU_REDE
 
+:REDE_NETSTAT
+cls
+echo Listando conexoes ativas e portas ouvindo (Pressione Ctrl+C para interromper)...
+echo.
+netstat -ano | more
+echo.
+pause
+goto MENU_REDE
+
 
 :: ============================================================================
 :: 2. MENU DE REPARO DO SISTEMA E WINDOWS UPDATE
@@ -250,22 +306,26 @@ echo ===========================================================================
 echo.
 echo   1. Verificador de Arquivos de Sistema (SFC /Scannow)
 echo   2. Verificar Saude da Imagem do Windows (DISM CheckHealth / ScanHealth)
-echo   3. Reparar Imagem do Windows (DISM RestoreHealth)
-echo   4. Redefinir Componentes do Windows Update (Correcao de falhas de update)
-echo   5. Agendar Verificacao de Integridade do Disco (CHKDSK C: /F)
-echo   6. Reiniciar o Windows Explorer (Destravar barra de tarefas)
+echo   3. Reparar Imagem do Windows Online (DISM RestoreHealth)
+echo   4. Redefinir Componentes e Cache do Windows Update (SoftwareDistribution)
+echo   5. Resetar Cache da Microsoft Store (wsreset.exe)
+echo   6. Atualizar Todos os Programas do PC via Gerenciador Winget
+echo   7. Agendar Verificacao de Integridade do Disco (CHKDSK C: /F)
+echo   8. Reiniciar o Windows Explorer (Destravar barra de tarefas e tela)
 echo.
 echo   0. Voltar ao Menu Principal
 echo ===============================================================================
 set "opt_sis="
-set /p opt_sis="Escolha uma opcao [0-6]: "
+set /p opt_sis="Escolha uma opcao [0-8]: "
 
 if "%opt_sis%"=="1" goto SIS_SFC
 if "%opt_sis%"=="2" goto SIS_DISM_CHECK
 if "%opt_sis%"=="3" goto SIS_DISM_RESTORE
 if "%opt_sis%"=="4" goto SIS_RESET_WU
-if "%opt_sis%"=="5" goto SIS_CHKDSK
-if "%opt_sis%"=="6" goto SIS_RESTART_EXPLORER
+if "%opt_sis%"=="5" goto SIS_WSRESET
+if "%opt_sis%"=="6" goto SIS_WINGET_UPGRADE
+if "%opt_sis%"=="7" goto SIS_CHKDSK
+if "%opt_sis%"=="8" goto SIS_RESTART_EXPLORER
 if "%opt_sis%"=="0" goto MAIN_MENU
 goto MENU_SISTEMA
 
@@ -325,6 +385,25 @@ echo.
 pause
 goto MENU_SISTEMA
 
+:SIS_WSRESET
+cls
+echo Resetando cache da Microsoft Store...
+start /wait wsreset.exe
+echo [OK] Cache da Loja Microsoft resetado com sucesso!
+echo.
+pause
+goto MENU_SISTEMA
+
+:SIS_WINGET_UPGRADE
+cls
+echo ===============================================================================
+echo ATUALIZANDO PROGRAMAS INSTALADOS VIA WINGET
+echo ===============================================================================
+powershell -NoProfile -Command "if (Get-Command winget -ErrorAction SilentlyContinue) { winget upgrade --all --include-unknown } else { Write-Host 'Winget nao esta instalado neste sistema operacional.' -ForegroundColor Red }"
+echo.
+pause
+goto MENU_SISTEMA
+
 :SIS_CHKDSK
 cls
 echo ===============================================================================
@@ -359,8 +438,8 @@ echo                  [3] IMPRESSAO E DESTRAVAMENTO DE SPOOLER
 echo ===============================================================================
 echo.
 echo   1. Destravar Fila de Impressao (Limpa trabalhos presos e reinicia servico)
-echo   2. Reiniciar Servico de Spooler
-echo   3. Listar Todas as Impressoras Instaladas e Portas
+echo   2. Reiniciar Servico de Spooler de Impressao
+echo   3. Listar Todas as Impressoras Instaladas, Portas e Status
 echo   4. Abrir Central de Dispositivos e Impressoras
 echo.
 echo   0. Voltar ao Menu Principal
@@ -423,25 +502,33 @@ goto MENU_IMPRESSAO
 :MENU_LIMPEZA
 cls
 echo ===============================================================================
-echo                   [4] LIMPEZA DE DISCO, CACHE E OTIMIZACAO
+echo            [4] LIMPEZA DE DISCO, CACHE, TRIM E OTIMIZACAO DE ENERGIA
 echo ===============================================================================
 echo.
 echo   1. Limpeza Completa de Arquivos Temporarios (Temp, Windows Temp, Prefetch)
-echo   2. Limpar Cache de Downloads do Windows Update
+echo   2. Limpar Cache de Downloads do Windows Update (SoftwareDistribution)
 echo   3. Esvaziar Lixeira de Todas as Unidades
 echo   4. Limpar e Reconstruir Cache de Icones e Miniaturas do Windows
-echo   5. Abrir Ferramenta Nativa de Limpeza de Disco (cleanmgr.exe)
+echo   5. Otimizar Armazenamento / TRIM em SSDs e Desfragmentar HDDs (defrag /O)
+echo   6. Desativar Hibernacao (Libera espaco do arquivo hiberfil.sys)
+echo   7. Ativar Hibernacao
+echo   8. Ativar Plano de Energia de Desempenho Maximo (Ultimate Performance)
+echo   9. Abrir Ferramenta Nativa de Limpeza de Disco (cleanmgr.exe)
 echo.
 echo   0. Voltar ao Menu Principal
 echo ===============================================================================
 set "opt_cln="
-set /p opt_cln="Escolha uma opcao [0-5]: "
+set /p opt_cln="Escolha uma opcao [0-9]: "
 
 if "%opt_cln%"=="1" goto CLN_TEMP
 if "%opt_cln%"=="2" goto CLN_WU_DOWNLOADS
 if "%opt_cln%"=="3" goto CLN_LIXEIRA
 if "%opt_cln%"=="4" goto CLN_ICONES
-if "%opt_cln%"=="5" goto CLN_CLEANMGR
+if "%opt_cln%"=="5" goto CLN_TRIM
+if "%opt_cln%"=="6" goto CLN_HIBER_OFF
+if "%opt_cln%"=="7" goto CLN_HIBER_ON
+if "%opt_cln%"=="8" goto CLN_ULTIMATE_PWR
+if "%opt_cln%"=="9" goto CLN_CLEANMGR
 if "%opt_cln%"=="0" goto MAIN_MENU
 goto MENU_LIMPEZA
 
@@ -502,6 +589,41 @@ echo [OK] Cache de icones reconstruido!
 timeout /t 2 >nul
 goto MENU_LIMPEZA
 
+:CLN_TRIM
+cls
+echo Otimizando volumes de disco e executando comando TRIM em SSDs...
+defrag C: /O
+echo.
+pause
+goto MENU_LIMPEZA
+
+:CLN_HIBER_OFF
+cls
+echo Desativando hibernacao...
+powercfg -h off
+echo [OK] Hibernacao desativada! O espaco do arquivo hiberfil.sys foi liberado.
+echo.
+pause
+goto MENU_LIMPEZA
+
+:CLN_HIBER_ON
+cls
+echo Reativando hibernacao...
+powercfg -h on
+echo [OK] Hibernacao reativada com sucesso.
+echo.
+pause
+goto MENU_LIMPEZA
+
+:CLN_ULTIMATE_PWR
+cls
+echo Ativando plano de energia de Desempenho Maximo...
+powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 >nul 2>&1
+echo [OK] Esquema de energia Desempenho Maximo habilitado no Windows!
+echo.
+pause
+goto MENU_LIMPEZA
+
 :CLN_CLEANMGR
 start cleanmgr.exe
 goto MENU_LIMPEZA
@@ -513,27 +635,31 @@ goto MENU_LIMPEZA
 :MENU_HARDWARE
 cls
 echo ===============================================================================
-echo            [5] DIAGNOSTICO DE HARDWARE, BATERIA E LICENCIAMENTO
+echo            [5] DIAGNOSTICO DE HARDWARE, SAUDE DE SSD/DISCO E BIOS
 echo ===============================================================================
 echo.
-echo   1. Exibir Resumo Rapido de Hardware (CPU, RAM, Placa-Mae, Discos)
-echo   2. Resgatar Chave de Ativacao do Windows gravada na BIOS (OEM Key)
-echo   3. Verificar Status e Validade da Licenca do Windows
-echo   4. Gerar Relatorio de Saude da Bateria (HTML na Area de Trabalho)
-echo   5. Gerar Relatorio Completo de Diagnostico em TXT no Desktop
-echo   6. Abrir Monitor de Recursos e Desempenho (resmon)
+echo   1. Resumo Completo de Hardware (CPU, RAM, Placa-Mae, Discos)
+echo   2. Diagnostico de Saude dos Discos SSD / HDD (Status SMART e Saude Fisica)
+echo   3. Consultar Ultimos Erros Criticos / Tela Azul no Visualizador de Eventos
+echo   4. Resgatar Chave de Ativacao do Windows gravada na BIOS (OEM Key)
+echo   5. Verificar Status e Validade da Licenca do Windows (slmgr)
+echo   6. Gerar Relatorio de Saude da Bateria (HTML na Area de Trabalho)
+echo   7. Gerar Relatorio Completo de Diagnostico em TXT no Desktop
+echo   8. Abrir Monitor de Recursos e Desempenho em Tempo Real (resmon)
 echo.
 echo   0. Voltar ao Menu Principal
 echo ===============================================================================
 set "opt_hw="
-set /p opt_hw="Escolha uma opcao [0-6]: "
+set /p opt_hw="Escolha uma opcao [0-8]: "
 
 if "%opt_hw%"=="1" goto HW_RESUMO
-if "%opt_hw%"=="2" goto HW_OEM_KEY
-if "%opt_hw%"=="3" goto HW_STATUS_LICENCA
-if "%opt_hw%"=="4" goto HW_BATERIA
-if "%opt_hw%"=="5" goto HW_RELATORIO_COMPLETO
-if "%opt_hw%"=="6" goto HW_RESMON
+if "%opt_hw%"=="2" goto HW_DISCO_SMART
+if "%opt_hw%"=="3" goto HW_EVENTOS_CRITICOS
+if "%opt_hw%"=="4" goto HW_OEM_KEY
+if "%opt_hw%"=="5" goto HW_STATUS_LICENCA
+if "%opt_hw%"=="6" goto HW_BATERIA
+if "%opt_hw%"=="7" goto HW_RELATORIO_COMPLETO
+if "%opt_hw%"=="8" goto HW_RESMON
 if "%opt_hw%"=="0" goto MAIN_MENU
 goto MENU_HARDWARE
 
@@ -552,6 +678,26 @@ echo [PLACA-MAE E BIOS]
 powershell -NoProfile -Command "Get-CimInstance Win32_BaseBoard | Select-Object Manufacturer, Product, SerialNumber | Format-List"
 echo [DISCOS DE ARMAZENAMENTO]
 powershell -NoProfile -Command "Get-CimInstance Win32_LogicalDisk -Filter 'DriveType=3' | Select-Object DeviceID, VolumeName, @{Name='Tam (GB)';Expression={[math]::Round($_.Size/1GB,2)}}, @{Name='Livre (GB)';Expression={[math]::Round($_.FreeSpace/1GB,2)}} | Format-Table -AutoSize"
+echo.
+pause
+goto MENU_HARDWARE
+
+:HW_DISCO_SMART
+cls
+echo ===============================================================================
+echo SAUDE DOS DISCOS FISICOS (SSD / HDD - STATUS SMART):
+echo ===============================================================================
+powershell -NoProfile -Command "Get-PhysicalDisk | Select-Object DeviceId, FriendlyName, MediaType, OperationalStatus, HealthStatus | Format-Table -AutoSize"
+echo.
+pause
+goto MENU_HARDWARE
+
+:HW_EVENTOS_CRITICOS
+cls
+echo ===============================================================================
+echo ULTIMOS EVENTOS CRITICOS E ERROS DE SISTEMA REGISTRADOS:
+echo ===============================================================================
+powershell -NoProfile -Command "Get-WinEvent -FilterHashtable @{LogName='System'; Level=1,2} -MaxEvents 6 -ErrorAction SilentlyContinue | Select-Object TimeCreated, Id, Message | Format-List"
 echo.
 pause
 goto MENU_HARDWARE
@@ -634,27 +780,31 @@ goto MENU_HARDWARE
 :MENU_USUARIO_GPO
 cls
 echo ===============================================================================
-echo            [6] CONTAS DE USUARIO, RESTAURACAO E GPO [DOMINIO]
+echo            [6] CONTAS DE USUARIO, SENHAS LOCAIS, RESTAURACAO E GPO
 echo ===============================================================================
 echo.
 echo   1. Forcar Atualizacao de Diretivas de Grupo (gpupdate /force)
 echo   2. Exibir Relatorio de Diretivas Aplicadas (gpresult /r)
 echo   3. Listar Usuarios Locais e Membros do Grupo Administradores
-echo   4. Ativar Conta de Administrador Local Integrada
-echo   5. Desativar Conta de Administrador Local Integrada
-echo   6. Criar Ponto de Restauracao do Sistema Imediato
+echo   4. Redefinir Senha de um Usuario Local
+echo   5. Criar Novo Usuario Local Administrador para Suporte
+echo   6. Ativar Conta de Administrador Local Integrada
+echo   7. Desativar Conta de Administrador Local Integrada
+echo   8. Criar Ponto de Restauracao do Sistema Imediato
 echo.
 echo   0. Voltar ao Menu Principal
 echo ===============================================================================
 set "opt_usr="
-set /p opt_usr="Escolha uma opcao [0-6]: "
+set /p opt_usr="Escolha uma opcao [0-8]: "
 
 if "%opt_usr%"=="1" goto USR_GPUPDATE
 if "%opt_usr%"=="2" goto USR_GPRESULT
 if "%opt_usr%"=="3" goto USR_LISTAR
-if "%opt_usr%"=="4" goto USR_ADMIN_ON
-if "%opt_usr%"=="5" goto USR_ADMIN_OFF
-if "%opt_usr%"=="6" goto USR_CRIAR_PONTO
+if "%opt_usr%"=="4" goto USR_RESET_SENHA
+if "%opt_usr%"=="5" goto USR_CRIAR_SUPORTE
+if "%opt_usr%"=="6" goto USR_ADMIN_ON
+if "%opt_usr%"=="7" goto USR_ADMIN_OFF
+if "%opt_usr%"=="8" goto USR_CRIAR_PONTO
 if "%opt_usr%"=="0" goto MAIN_MENU
 goto MENU_USUARIO_GPO
 
@@ -684,6 +834,38 @@ echo ===========================================================================
 echo MEMBROS DO GRUPO ADMINISTRADORES:
 net localgroup administrators
 echo.
+pause
+goto MENU_USUARIO_GPO
+
+:USR_RESET_SENHA
+cls
+echo ===============================================================================
+echo REDEFINIR SENHA DE USUARIO LOCAL
+echo ===============================================================================
+net user
+echo.
+set "alvo_usr="
+set /p alvo_usr="Digite o nome do usuario que tera a senha alterada: "
+if "%alvo_usr%"=="" goto MENU_USUARIO_GPO
+net user "%alvo_usr%" *
+echo.
+pause
+goto MENU_USUARIO_GPO
+
+:USR_CRIAR_SUPORTE
+cls
+echo ===============================================================================
+echo CRIAR CONTA DE SUPORTE TECNICO LOCAL
+echo ===============================================================================
+set "novo_usr="
+set /p novo_usr="Digite o nome de login da nova conta (ex: SuporteLocal): "
+if "%novo_usr%"=="" goto MENU_USUARIO_GPO
+set "nova_pwd="
+set /p nova_pwd="Digite a senha para essa conta: "
+net user "%novo_usr%" "%nova_pwd%" /add
+net localgroup administrators "%novo_usr%" /add
+echo.
+echo [OK] Usuario criado e adicionado ao grupo de Administradores!
 pause
 goto MENU_USUARIO_GPO
 
@@ -721,17 +903,149 @@ goto MENU_USUARIO_GPO
 
 
 :: ============================================================================
-:: 7. MENU DE ATALHOS ADMINISTRATIVOS RAPIDOS
+:: 7. MENU DE AUDIO, BLUETOOTH E PERIFERICOS
+:: ============================================================================
+:MENU_AUDIO_PERIF
+cls
+echo ===============================================================================
+echo         [7] AUDIO, BLUETOOTH, SERVICOS E PERIFERICOS
+echo ===============================================================================
+echo.
+echo   1. Reiniciar Servicos de Audio do Windows (Corrige som e microfone travados)
+echo   2. Reiniciar Servico de Bluetooth
+echo   3. Forcar Deteccao de Novos Dispositivos Plug and Play (pnputil)
+echo   4. Listar Compartilhamentos de Rede Ativos neste PC (net share)
+echo.
+echo   0. Voltar ao Menu Principal
+echo ===============================================================================
+set "opt_aud="
+set /p opt_aud="Escolha uma opcao [0-4]: "
+
+if "%opt_aud%"=="1" goto AUD_RESTART
+if "%opt_aud%"=="2" goto BTH_RESTART
+if "%opt_aud%"=="3" goto PNP_SCAN
+if "%opt_aud%"=="4" goto NET_SHARE_LIST
+if "%opt_aud%"=="0" goto MAIN_MENU
+goto MENU_AUDIO_PERIF
+
+:AUD_RESTART
+cls
+echo ===============================================================================
+echo REINICIANDO SUBSISTEMA DE AUDIO DO WINDOWS
+echo ===============================================================================
+net stop AudioEndpointBuilder /y >nul 2>&1
+net stop AudioSrv /y >nul 2>&1
+net start AudioEndpointBuilder >nul 2>&1
+net start AudioSrv >nul 2>&1
+echo [OK] Servicos de audio reiniciados com sucesso!
+echo.
+pause
+goto MENU_AUDIO_PERIF
+
+:BTH_RESTART
+cls
+echo Reiniciando servico de Bluetooth...
+net stop bthserv /y >nul 2>&1
+net start bthserv >nul 2>&1
+echo [OK] Servico de Bluetooth reiniciado!
+echo.
+pause
+goto MENU_AUDIO_PERIF
+
+:PNP_SCAN
+cls
+echo Executando varredura por alteracoes de hardware e novos dispositivos...
+pnputil /scan-devices
+echo.
+pause
+goto MENU_AUDIO_PERIF
+
+:NET_SHARE_LIST
+cls
+echo ===============================================================================
+echo COMPARTILHAMENTOS DE REDE ATIVOS NESTE PC:
+echo ===============================================================================
+net share
+echo.
+pause
+goto MENU_AUDIO_PERIF
+
+
+:: ============================================================================
+:: 8. MENU DE SEGURANCA, WINDOWS DEFENDER E FIREWALL
+:: ============================================================================
+:MENU_SEGURANCA
+cls
+echo ===============================================================================
+echo              [8] SEGURANCA, WINDOWS DEFENDER E FIREWALL
+echo ===============================================================================
+echo.
+echo   1. Atualizar Assinaturas de Virus do Windows Defender
+echo   2. Executar Varredura Rapida de Antivirus com Windows Defender
+echo   3. Restaurar Regras Padrao do Windows Firewall (netsh advfirewall reset)
+echo   4. Verificar Status Atual dos Perfis do Firewall
+echo.
+echo   0. Voltar ao Menu Principal
+echo ===============================================================================
+set "opt_sec="
+set /p opt_sec="Escolha uma opcao [0-4]: "
+
+if "%opt_sec%"=="1" goto SEC_UPDATE_DEFENDER
+if "%opt_sec%"=="2" goto SEC_SCAN_DEFENDER
+if "%opt_sec%"=="3" goto SEC_RESET_FIREWALL
+if "%opt_sec%"=="4" goto SEC_STATUS_FIREWALL
+if "%opt_sec%"=="0" goto MAIN_MENU
+goto MENU_SEGURANCA
+
+:SEC_UPDATE_DEFENDER
+cls
+echo Baixando atualizacoes mais recentes de definicoes do Windows Defender...
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -SignatureUpdate
+echo [OK] Atualizacao de definicoes concluida!
+echo.
+pause
+goto MENU_SEGURANCA
+
+:SEC_SCAN_DEFENDER
+cls
+echo Iniciando varredura rapida do Windows Defender...
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 1
+echo.
+pause
+goto MENU_SEGURANCA
+
+:SEC_RESET_FIREWALL
+cls
+echo Restaurando configuracoes padrao do Firewall do Windows...
+netsh advfirewall reset
+echo [OK] Regras do Firewall restauradas para o padrao de fabrica.
+echo.
+pause
+goto MENU_SEGURANCA
+
+:SEC_STATUS_FIREWALL
+cls
+echo ===============================================================================
+echo STATUS DOS PERFIS DO FIREWALL DO WINDOWS:
+echo ===============================================================================
+netsh advfirewall show allprofiles
+echo.
+pause
+goto MENU_SEGURANCA
+
+
+:: ============================================================================
+:: 9. MENU DE ATALHOS ADMINISTRATIVOS RAPIDOS
 :: ============================================================================
 :MENU_ATALHOS
 cls
 echo ===============================================================================
-echo            [7] CENTRAL DE FERRAMENTAS ADMINISTRATIVAS RAPIDAS
+echo            [9] CENTRAL DE FERRAMENTAS ADMINISTRATIVAS RAPIDAS
 echo ===============================================================================
 echo.
 echo   1. Conexoes de Rede (ncpa.cpl)
 echo   2. Gerenciador de Dispositivos (devmgmt.msc)
-echo   3. Programas e Recursos (appwiz.cpl)
+echo   3. Programas e Recursos / Desinstalar (appwiz.cpl)
 echo   4. Gerenciador de Tarefas (taskmgr)
 echo   5. Servicos do Windows (services.msc)
 echo   6. Gerenciamento do Computador (compmgmt.msc)
@@ -740,11 +1054,12 @@ echo   8. Editor do Registro (regedit)
 echo   9. Conexao de Area de Trabalho Remota (mstsc)
 echo  10. Assistencia Rapida (quickassist)
 echo  11. Painel de Controle Classico (control)
+echo  12. Configuracao do Sistema (msconfig)
 echo.
 echo   0. Voltar ao Menu Principal
 echo ===============================================================================
 set "opt_ctl="
-set /p opt_ctl="Selecione o atalho desejado [0-11]: "
+set /p opt_ctl="Selecione o atalho desejado [0-12]: "
 
 if "%opt_ctl%"=="1" start ncpa.cpl & goto MENU_ATALHOS
 if "%opt_ctl%"=="2" start devmgmt.msc & goto MENU_ATALHOS
@@ -757,25 +1072,27 @@ if "%opt_ctl%"=="8" start regedit & goto MENU_ATALHOS
 if "%opt_ctl%"=="9" start mstsc & goto MENU_ATALHOS
 if "%opt_ctl%"=="10" start quickassist & goto MENU_ATALHOS
 if "%opt_ctl%"=="11" start control & goto MENU_ATALHOS
+if "%opt_ctl%"=="12" start msconfig & goto MENU_ATALHOS
 if "%opt_ctl%"=="0" goto MAIN_MENU
 goto MENU_ATALHOS
 
 
 :: ============================================================================
-:: 8. MODO VARREDURA AUTOMATICA (QUICK FIX)
+:: 10. MODO VARREDURA AUTOMATICA (QUICK FIX)
 :: ============================================================================
 :VARREDURA_AUTO
 cls
 echo ===============================================================================
-echo                     MODO VARREDURA AUTOMATICA [QUICK FIX]
+echo                 [10] MODO VARREDURA AUTOMATICA [QUICK FIX N1]
 echo ===============================================================================
 echo Esta rotina automatica executa os seguintes passos em sequencia:
-echo  1. Limpeza de temporarios (Temp, Windows Temp, Prefetch)
+echo  1. Limpeza de temporarios (Temp, Windows Temp, Prefetch, CrashDumps)
 echo  2. Esvaziamento da Lixeira
 echo  3. Limpeza de cache DNS (Flush DNS)
 echo  4. Redefinicao de catalogo Winsock e TCP/IP
 echo  5. Destravamento e limpeza do Spooler de Impressao
-echo  6. Verificacao de integridade de arquivos do Windows (SFC /Scannow)
+echo  6. Reinicializacao dos servicos de Audio
+echo  7. Verificacao de integridade de arquivos do Windows (SFC /Scannow)
 echo ===============================================================================
 echo.
 set "confirm="
@@ -783,27 +1100,34 @@ set /p confirm="Deseja iniciar a varredura completa agora? (S/N): "
 if /i not "%confirm%"=="S" goto MAIN_MENU
 
 echo.
-echo [1/6] Limpando pastas temporarias e caches...
+echo [1/7] Limpando pastas temporarias e caches...
 del /s /f /q "%temp%\*.*" >nul 2>&1
 del /s /f /q "C:\Windows\Temp\*.*" >nul 2>&1
 del /s /f /q "C:\Windows\Prefetch\*.*" >nul 2>&1
+del /s /f /q "%LOCALAPPDATA%\CrashDumps\*.*" >nul 2>&1
 
-echo [2/6] Esvaziando Lixeira...
+echo [2/7] Esvaziando Lixeira...
 powershell -NoProfile -Command "Clear-RecycleBin -Force -ErrorAction SilentlyContinue" >nul 2>&1
 
-echo [3/6] Limpando cache do resolvedor DNS...
+echo [3/7] Limpando cache do resolvedor DNS...
 ipconfig /flushdns >nul 2>&1
 
-echo [4/6] Redefinindo Winsock e pilha TCP/IP...
+echo [4/7] Redefinindo Winsock e pilha TCP/IP...
 netsh winsock reset >nul 2>&1
 netsh int ip reset >nul 2>&1
 
-echo [5/6] Limpando fila e reiniciando Spooler de Impressao...
+echo [5/7] Limpando fila e reiniciando Spooler de Impressao...
 net stop spooler >nul 2>&1
 del /q /f /s "%systemroot%\System32\spool\printers\*.*" >nul 2>&1
 net start spooler >nul 2>&1
 
-echo [6/6] Executando SFC /Scannow (Aguarde alguns minutos)...
+echo [6/7] Reiniciando subsistema de audio...
+net stop AudioEndpointBuilder /y >nul 2>&1
+net stop AudioSrv /y >nul 2>&1
+net start AudioEndpointBuilder >nul 2>&1
+net start AudioSrv >nul 2>&1
+
+echo [7/7] Executando SFC /Scannow (Aguarde alguns minutos)...
 sfc /scannow
 
 echo.

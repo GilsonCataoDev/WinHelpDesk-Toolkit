@@ -6,10 +6,11 @@
 
 [![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011%20%7C%20Server-0078D6?logo=windows&logoColor=white)](https://microsoft.com)
 [![Shell](https://img.shields.io/badge/Language-Batch%20%2F%20CMD-4EAA25?logo=gnu-bash&logoColor=white)](https://en.wikipedia.org/wiki/Batch_file)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-GilsonCataoDev%2FWinHelpDesk--Toolkit-blue?logo=github)](https://github.com/GilsonCataoDev/WinHelpDesk-Toolkit)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-*Tudo centralizado em um único arquivo `.bat` autocontido, sem necessidade de instalação de dependências externas.*
+*Tudo centralizado em um único arquivo `.bat` autocontido com mais de 50 funções práticas de Help Desk e zero dependências externas.*
 
 </div>
 
@@ -17,13 +18,13 @@
 
 ## 📌 Visão Geral
 
-O **WinHelpDesk Toolkit** foi desenvolvido para solucionar mais de 90% dos chamados rotineiros de suporte técnico nível 1 e 2 (N1/N2) em ambientes corporativos e domésticos. Ele reúne em um único arquivo scripts de diagnóstico, reparo do sistema, resolução de problemas de rede, liberação de espaço em disco, manutenção de impressoras e ferramentas administrativas.
+O **WinHelpDesk Toolkit** foi projetado para analistas de suporte técnico e administradores de TI que precisam de agilidade e confiabilidade na resolução de chamados em máquinas Windows 10, 11 e Windows Server.
 
-### ✨ Destaques
-- **Tudo em um único arquivo (`WinHelpDesk.bat`)**: Fácil de carregar em um pendrive ou enviar via acesso remoto.
-- **Auto-Elevação UAC**: Detecta automaticamente se está como Administrador e solicita permissão de forma transparente.
-- **Zero Dependências**: Utiliza ferramentas nativas do Windows (`CMD`, `PowerShell`, `WMI/CIM`, `NETSH`).
-- **Modo Quick Fix**: Executa uma bateria completa de limpezas e correções com apenas 1 clique.
+### ✨ Diferenciais
+- **100% Autocontido em arquivo único (`WinHelpDesk.bat`)**: Ideal para carregar em pendrives de suporte técnico ou transferir via acesso remoto.
+- **Auto-Elevação com UAC Seguro**: Detecta privilégios de Administrador e requisita elevação via UAC sem fechar o terminal nem travar.
+- **Nativo e Leve**: Utiliza estritamente os comandos e subsistemas nativos do Windows (`CMD`, `PowerShell`, `WMI/CIM`, `NETSH`, `DISM`, `MpCmdRun`).
+- **Modo Quick Fix N1**: Bateria completa de limpezas, reparos e reinício de serviços com apenas 1 clique.
 
 ---
 
@@ -31,26 +32,24 @@ O **WinHelpDesk Toolkit** foi desenvolvido para solucionar mais de 90% dos chama
 
 ```text
 ===============================================================================
-       __          ___       _    _      _           _____           _    
-       \ \        / (_)     | |  | |    | |         |  __ \         | |   
-        \ \  /\  / / _ _ __ | |__| | ___| |___  ___| |  | | ___ ___| | __
-         \ \/  \/ / | | '_ \|  __  |/ _ \ / __|/ _ \ |  | |/ _ \/ __| |/ /
-          \  /\  /  | | | | | |  | |  __| (__|  __| |__| |  __/\__ \   < 
-           \/  \/   |_|_| |_|_|  |_|\___|\___|\___|_____/ \___||___/_|\_\
-
-                      CENTRAL DE SUPORTE TECNICO & HELP DESK
+  =========================================================================
+  *                     WINHELPDESK TOOLKIT 2026                          *
+  *           CENTRAL COMPLETA DE SUPORTE TECNICO & HELP DESK             *
+  =========================================================================
 ===============================================================================
  Usuario: SuporteTI       Computador: DESKTOP-PROD01       Data: 10/11/2026
 ===============================================================================
 
-  [1]  Rede, Internet e Conectividade
-  [2]  Reparo do Sistema e Windows Update
+  [1]  Rede, Internet e Conectividade (IP, DNS, Wi-Fi, Reset de Rede)
+  [2]  Reparo do Sistema, Windows Update e Winget (SFC, DISM, Updates)
   [3]  Impressao e Destravamento de Spooler
-  [4]  Limpeza de Disco, Cache e Otimizacao
-  [5]  Diagnostico de Hardware, Bateria e Licenciamento
-  [6]  Contas de Usuario, Restauracao e GPO (Dominio)
-  [7]  Central de Ferramentas Administrativas (MSC / CPL)
-  [8]  MODO VARREDURA AUTOMATICA (Quick Fix Completo)
+  [4]  Limpeza de Disco, Cache, TRIM e Otimizacao de Energia
+  [5]  Diagnostico de Hardware, Saude de SSD/Disco, BIOS e Bateria
+  [6]  Contas de Usuario, Senhas Locais, Restauracao e GPO
+  [7]  Audio, Bluetooth, Servicos e Perifericos (Reiniciar Som/Drivers)
+  [8]  Seguranca, Windows Defender e Firewall
+  [9]  Central de Ferramentas Administrativas [MSC / CPL]
+ [10]  MODO VARREDURA AUTOMATICA [Quick Fix N1 Completo]
 
   [0]  Sair do WinHelpDesk
 ===============================================================================
@@ -58,71 +57,20 @@ O **WinHelpDesk Toolkit** foi desenvolvido para solucionar mais de 90% dos chama
 
 ---
 
-## ⚡ Funcionalidades Detalhadas
+## ⚡ Módulos e Funcionalidades
 
-### 🌐 1. Rede e Conectividade
-- Diagnóstico completo (`ipconfig /all`)
-- Teste de latência/ping para Google (8.8.8.8) e Cloudflare (1.1.1.1)
-- Limpeza de cache de resolução DNS (`ipconfig /flushdns`)
-- Liberação e renovação de concessão DHCP (`release / renew`)
-- Redefinição completa da pilha TCP/IP e catálogo Winsock (`netsh winsock reset`)
-- Exibição de conexões e portas em escuta (`netstat -ano`)
-- Revelação de senhas de redes Wi-Fi salvas na máquina
-- Troca rápida de DNS (Google, Cloudflare ou restauração para automático via DHCP)
-
-### 🩺 2. Reparo do Sistema e Windows Update
-- Verificador de arquivos de integridade (`sfc /scannow`)
-- Diagnóstico e restauração da imagem do Windows (`DISM RestoreHealth`)
-- Reset de componentes corrompidos do Windows Update (renomeia `SoftwareDistribution` e `catroot2`)
-- Agendamento de verificação e correção de setores de disco (`chkdsk C: /f`)
-- Reinicialização limpa do Windows Explorer (`explorer.exe`) para desobstrução de congelamentos visuais
-
-### 🖨️ 3. Impressão e Spooler
-- Destravamento da fila de impressão (interrupção do Spooler, expurgo de arquivos presos em `spool\printers` e reinício)
-- Listagem detalhada de impressoras instaladas, portas e status
-- Acesso rápido à central clássica de dispositivos e impressoras
-
-### 🧹 4. Limpeza de Disco e Cache
-- Expurgo de arquivos temporários (`%TEMP%`, `C:\Windows\Temp`, `Prefetch`, `CrashDumps`)
-- Limpeza de instaladores obsoletos do Windows Update
-- Esvaziamento forçado de lixeira em todas as unidades de disco
-- Reconstrução de cache de ícones e miniaturas do Windows (`IconCache.db`)
-- Atalho para o utilitário nativo de limpeza (`cleanmgr.exe`)
-
-### 🔍 5. Diagnóstico de Hardware e Licenciamento
-- Resumo em tempo real de CPU, Placa-Mãe, Memória RAM e Discos
-- Resgate da Chave de Ativação do Windows gravada na BIOS (chave OEM MSDM)
-- Checagem de expiração e canal de licenciamento (`slmgr.vbs /xpr` e `/dli`)
-- Geração de Relatório de Saúde da Bateria (`batteryreport`) em HTML no Desktop
-- Exportação de relatório técnico consolidado em `.txt`
-
-### 👥 6. Contas de Usuário e Domínio (GPO)
-- Atualização imediata de diretivas de grupo (`gpupdate /force`)
-- Auditoria de políticas aplicadas (`gpresult /r`)
-- Consulta de contas de usuário e membros do grupo Administradores local
-- Ativação/Desativação da conta oculta de Administrador local integrado
-- Criação instantânea de Ponto de Restauração do Windows
-
-### 🧰 7. Central de Ferramentas Administrativas
-Acesso a um clique para os principais consoles do Windows:
-- `ncpa.cpl` (Adaptadores de Rede)
-- `devmgmt.msc` (Gerenciador de Dispositivos)
-- `appwiz.cpl` (Desinstalar Programas)
-- `services.msc` (Serviços)
-- `compmgmt.msc` (Gerenciamento do Computador)
-- `eventvwr.msc` (Visualizador de Eventos)
-- `regedit` (Editor do Registro)
-- `mstsc` (Área de Trabalho Remota)
-- `quickassist` (Assistência Rápida)
-
-### 🚀 8. Modo Varredura Automática (Quick Fix)
-Executa em lote:
-1. Limpeza de caches temporários
-2. Esvaziamento de lixeira
-3. Flush DNS
-4. Redefinição de Winsock e TCP/IP
-5. Limpeza e reinício da fila de impressão
-6. Verificação de integridade via SFC
+| Módulo | Descrição das Ações |
+| :--- | :--- |
+| **1. Rede & Internet** | Diagnóstico IP/DNS/MAC, consulta de IP Público, Ping (Google/Cloudflare), Tracert, Flush DNS, Release/Renew DHCP, Reset TCP/IP e Winsock, Reset de Placa de Rede, Revelador de senhas Wi-Fi, Backup de perfis Wi-Fi em XML e monitor de portas (`netstat`). |
+| **2. Reparo do Sistema** | `sfc /scannow`, `DISM RestoreHealth` e `CheckHealth`, Reset de componentes do Windows Update (`SoftwareDistribution`/`catroot2`), Reset da Microsoft Store (`wsreset`), Atualização de todos os programas via Winget, `chkdsk` agendado e reinício limpo do `explorer.exe`. |
+| **3. Impressão & Spooler** | Destravamento forçado da fila de impressão (interrupção do Spooler, exclusão de arquivos retidos em `spool\printers` e reinício), listagem de impressoras instaladas e acesso à central clássica. |
+| **4. Limpeza & Otimização** | Expurgo de `%TEMP%`, `Windows\Temp`, `Prefetch` e `CrashDumps`, limpeza de atualizações antigas, esvaziamento de lixeira, rebuild do cache de ícones (`IconCache.db`), TRIM para SSDs e defrag para HDDs (`defrag /O`), desativação de hibernação (`hiberfil.sys`) e plano de energia Ultimate Performance. |
+| **5. Diagnóstico & Hardware** | Resumo de CPU, RAM, Placa-Mãe e Discos, auditoria SMART e integridade física de SSD/HDD (`Get-PhysicalDisk`), consulta de erros críticos e BlueScreens recentes no Event Log, resgate de chave OEM do Windows gravada na BIOS (MSDM), auditoria de licença (`slmgr`), relatório de bateria em HTML e exportação completa em TXT. |
+| **6. Usuários & Diretivas (GPO)** | `gpupdate /force`, auditoria de diretivas aplicadas (`gpresult /r`), listagem de usuários e administradores locais, redefinição direta de senha local, criação expressa de usuário suporte administrador, toggle de administrador oculto e criação de Ponto de Restauração. |
+| **7. Áudio, Bluetooth & Drivers** | Reinicialização completa dos serviços de áudio (`AudioSrv` e `AudioEndpointBuilder` - resolve microfones e som travados em reuniões), reinício de Bluetooth, varredura Plug and Play de hardware (`pnputil /scan-devices`) e lista de compartilhamentos (`net share`). |
+| **8. Segurança & Firewall** | Atualização forçada das assinaturas do Windows Defender (`MpCmdRun.exe -SignatureUpdate`), varredura rápida de antivírus nativa, restauração padrão do Firewall do Windows (`netsh advfirewall reset`) e auditoria de perfis de rede. |
+| **9. Central Administrativa** | Atalhos rápidos a 1 clique: `ncpa.cpl`, `devmgmt.msc`, `appwiz.cpl`, `taskmgr`, `services.msc`, `compmgmt.msc`, `eventvwr.msc`, `regedit`, `mstsc`, `quickassist`, `control` e `msconfig`. |
+| **10. Quick Fix N1 (Automático)** | Executa rotina em lote: Limpeza de temporários + Esvaziamento de Lixeira + Flush DNS + Reset Winsock e TCP/IP + Destravamento de Impressão + Reinício de Áudio + Varredura SFC. |
 
 ---
 
@@ -130,7 +78,7 @@ Executa em lote:
 
 ### Opção 1: Download Direto (Recomendado para Suporte Rápido)
 1. Baixe o arquivo [`WinHelpDesk.bat`](WinHelpDesk.bat).
-2. Dê um duplo clique sobre ele.
+2. Dê um duplo clique sobre ele (ou clique com botão direito e selecione **"Executar como Administrador"**).
 3. Se a janela do UAC for exibida, clique em **Sim** para permitir privilégios de Administrador.
 4. Navegue pelo menu utilizando as opções numéricas.
 
@@ -145,24 +93,24 @@ WinHelpDesk.bat
 
 ## 🔒 Segurança e Boas Práticas
 
-- **Código Aberto e Auditável**: O script é 100% legível em texto puro (`.bat`), permitindo auditar cada comando antes de executar.
-- **Segurança Operacional**: Não apaga documentos nem arquivos pessoais. A limpeza atua em temporários (`%temp%`, `Windows\Temp`, Prefetch) e na Lixeira, e o Quick Fix pede confirmação antes de rodar.
-- **Uso responsável**: A recuperação de senhas de Wi-Fi e a ativação/desativação do Administrador local pedem confirmação. Use apenas em máquinas que você administra, com autorização do responsável.
-- **Reversibilidade**: Oferece opção de criação de Ponto de Restauração antes de manutenções críticas.
+- **Código Aberto e Auditável**: O script é 100% legível em texto puro (`.bat`), permitindo auditar cada comando antes de executar em qualquer máquina corporativa.
+- **Segurança Operacional**: Não apaga documentos nem arquivos pessoais. A limpeza atua estritamente em arquivos temporários (`%temp%`, `Windows\Temp`, `Prefetch`, `CrashDumps`) e na Lixeira.
+- **Uso Responsável**: Recursos como recuperação de chaves Wi-Fi e gerenciamento de contas de usuário exigem privilégios administrativos e devem ser utilizados em conformidade com as políticas da sua organização.
+- **Reversibilidade**: Permite a criação instantânea de Pontos de Restauração antes de manutenções no sistema.
 
 ---
 
 ## 🤝 Como Contribuir
 
-Contribuições são muito bem-vindas!
+Pull Requests e sugestões de melhorias são muito bem-vindos!
 1. Faça um Fork do projeto.
-2. Crie uma branch para sua funcionalidade (`git checkout -b feature/NovaFuncao`).
-3. Faça commit das alterações (`git commit -m 'Adiciona reparo de servico X'`).
-4. Envie para o branch (`git push origin feature/NovaFuncao`).
+2. Crie uma branch para sua funcionalidade: `git checkout -b feature/NovaFuncao`
+3. Faça commit das alterações: `git commit -m 'feat: adiciona reparo X'`
+4. Envie para o GitHub: `git push origin feature/NovaFuncao`
 5. Abra um **Pull Request**.
 
 ---
 
 ## 📄 Licença
 
-Este projeto está sob a licença [MIT](LICENSE). Sinta-se livre para usar, modificar e distribuir em sua empresa ou consultoria de TI.
+Este projeto é distribuído sob a licença [MIT](LICENSE). Sinta-se livre para utilizar, customizar e distribuir em sua empresa, equipe ou consultoria de TI.
