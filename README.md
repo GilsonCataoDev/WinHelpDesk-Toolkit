@@ -136,7 +136,7 @@ Executa em lote:
 
 ### Opção 2: Via Git
 ```bash
-git clone https://github.com/SEU_USUARIO/WinHelpDesk-Toolkit.git
+git clone https://github.com/GilsonCataoDev/WinHelpDesk-Toolkit.git
 cd WinHelpDesk-Toolkit
 WinHelpDesk.bat
 ```
@@ -146,7 +146,8 @@ WinHelpDesk.bat
 ## 🔒 Segurança e Boas Práticas
 
 - **Código Aberto e Auditável**: O script é 100% legível em texto puro (`.bat`), permitindo auditar cada comando antes de executar.
-- **Segurança Operacional**: Não remove dados pessoais, documentos ou arquivos essenciais de usuários.
+- **Segurança Operacional**: Não apaga documentos nem arquivos pessoais. A limpeza atua em temporários (`%temp%`, `Windows\Temp`, Prefetch) e na Lixeira, e o Quick Fix pede confirmação antes de rodar.
+- **Uso responsável**: A recuperação de senhas de Wi-Fi e a ativação/desativação do Administrador local pedem confirmação. Use apenas em máquinas que você administra, com autorização do responsável.
 - **Reversibilidade**: Oferece opção de criação de Ponto de Restauração antes de manutenções críticas.
 
 ---

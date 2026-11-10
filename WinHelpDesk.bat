@@ -187,6 +187,10 @@ cls
 echo ===============================================================================
 echo RECUPERACAO DE SENHAS DE REDES WI-FI SALVAS NESTE COMPUTADOR
 echo ===============================================================================
+echo ATENCAO: use apenas em computadores que voce administra e com autorizacao
+echo do responsavel. As senhas serao exibidas na tela.
+set /p CONF_WIFI=Deseja continuar? (S/N): 
+if /i not "%CONF_WIFI%"=="S" goto MENU_REDE
 powershell -NoProfile -Command "(netsh wlan show profiles) | Select-String '\:(.+)$' | ForEach-Object { $name = $_.Matches.Groups[1].Value.Trim(); $_ } | ForEach-Object { $profile = (netsh wlan show profile name=\"$name\" key=clear); $pass = ($profile | Select-String 'Key Content\s*:\s*(.+)$'); if ($pass) { [PSCustomObject]@{ 'Rede Wi-Fi' = $name; 'Senha' = $pass.Matches.Groups[1].Value.Trim() } } else { [PSCustomObject]@{ 'Rede Wi-Fi' = $name; 'Senha' = '[Sem Senha / Aberta]' } } } | Format-Table -AutoSize"
 echo.
 pause
@@ -662,6 +666,9 @@ goto MENU_USUARIO_GPO
 
 :USR_ADMIN_ON
 cls
+echo ATENCAO: ativar o Administrador local reduz a seguranca do computador.
+set /p CONF_ADM=Deseja ativar a conta? (S/N): 
+if /i not "%CONF_ADM%"=="S" goto MENU_USUARIO_GPO
 net user Administrator /active:yes >nul 2>&1
 net user Administrador /active:yes >nul 2>&1
 echo [OK] Conta de Administrador local ativada.
@@ -671,6 +678,8 @@ goto MENU_USUARIO_GPO
 
 :USR_ADMIN_OFF
 cls
+set /p CONF_ADM=Deseja desativar a conta de Administrador local? (S/N): 
+if /i not "%CONF_ADM%"=="S" goto MENU_USUARIO_GPO
 net user Administrator /active:no >nul 2>&1
 net user Administrador /active:no >nul 2>&1
 echo [OK] Conta de Administrador local desativada.
