@@ -7,7 +7,7 @@
 :: LICENCA: MIT
 :: ============================================================================
 
-setlocal EnableExtensions EnableDelayedExpansion
+setlocal EnableExtensions
 chcp 65001 >nul
 title WinHelpDesk Toolkit - Central de Suporte e Diagnostico
 color 1F
@@ -19,10 +19,19 @@ net session >nul 2>&1
 if %errorLevel% neq 0 (
     echo.
     echo ===============================================================================
-    echo  [AVISO] Privilegios de Administrador sao necessarios para executar este kit.
-    echo  Solicitando permissao de Administrador (UAC)...
+    echo  [AVISO] Privilegios de Administrador necessarios para tarefas de Help Desk.
+    echo  Solicitando confirmacao de Administrador [UAC]...
     echo ===============================================================================
-    powershell -NoProfile -Command "Start-Process cmd -ArgumentList '/c \"\"%~f0\"\"' -Verb RunAs"
+    powershell -NoProfile -Command "Start-Process cmd.exe -ArgumentList '/k `\"%~f0`\"' -Verb RunAs" 2>nul
+    if %errorLevel% neq 0 (
+        echo.
+        echo [ERRO] Nao foi possivel obter privilegios de Administrador automaticamente.
+        echo.
+        echo DICA: Clique com o BOTAO DIREITO em WinHelpDesk.bat e escolha:
+        echo       "Executar como administrador"
+        echo.
+        pause
+    )
     exit /b
 )
 
@@ -32,14 +41,10 @@ if %errorLevel% neq 0 (
 :MAIN_MENU
 cls
 echo ===============================================================================
-echo        __          ___       _    _      _           _____           _    
-echo        \ \        / (_)     ^| ^|  ^| ^|    ^| ^|         ^|  __ \         ^| ^|   
-echo         \ \  /\  / / _ _ __ ^| ^|__^| ^| ___^| ^|___  ___^| ^|  ^| ^| ___ ___^| ^| __
-echo          \ \/  \/ / ^| ^| '_ \^|  __  ^|/ _ \ / __^|/ _ \ ^|  ^| ^|/ _ \/ __^| ^|/ /
-echo           \  /\  /  ^| ^| ^| ^| ^| ^|  ^| ^|  __^| (__^|  __^| ^|__^| ^|  __/\__ \   ^< 
-echo            \/  \/   ^|_^|_^| ^|_^|_^|  ^|_^|\___^|\___^|\___^|_____/ \___^|^|___/_^|\_\
-echo.
-echo                       CENTRAL DE SUPORTE TECNICO & HELP DESK
+echo   =========================================================================
+echo   *                     WINHELPDESK TOOLKIT 2026                          *
+echo   *                 CENTRAL DE SUPORTE TECNICO E TI                       *
+echo   =========================================================================
 echo ===============================================================================
 echo  Usuario: %USERNAME%       Computador: %COMPUTERNAME%       Data: %DATE%
 echo ===============================================================================
@@ -49,12 +54,13 @@ echo   [2]  Reparo do Sistema e Windows Update
 echo   [3]  Impressao e Destravamento de Spooler
 echo   [4]  Limpeza de Disco, Cache e Otimizacao
 echo   [5]  Diagnostico de Hardware, Bateria e Licenciamento
-echo   [6]  Contas de Usuario, Restauracao e GPO (Dominio)
-echo   [7]  Central de Ferramentas Administrativas (MSC / CPL)
-echo   [8]  MODO VARREDURA AUTOMATICA (Quick Fix Completo)
+echo   [6]  Contas de Usuario, Restauracao e GPO [Dominio]
+echo   [7]  Central de Ferramentas Administrativas [MSC / CPL]
+echo   [8]  MODO VARREDURA AUTOMATICA [Quick Fix Completo]
 echo.
 echo   [0]  Sair do WinHelpDesk
 echo ===============================================================================
+set "opt="
 set /p opt="Escolha uma categoria [0-8]: "
 
 if "%opt%"=="1" goto MENU_REDE
@@ -92,6 +98,7 @@ echo   8. Alterar DNS Rapidamente (Google 8.8.8.8 / Cloudflare 1.1.1.1 / DHCP)
 echo.
 echo   0. Voltar ao Menu Principal
 echo ===============================================================================
+set "opt_rede="
 set /p opt_rede="Escolha uma opcao [0-8]: "
 
 if "%opt_rede%"=="1" goto REDE_INFO
@@ -201,25 +208,33 @@ cls
 echo ===============================================================================
 echo CONFIGURAR SERVIDORES DNS RAPIDAMENTE
 echo ===============================================================================
-echo   1. Google DNS (8.8.8.8 e 8.8.4.4)
-echo   2. Cloudflare DNS (1.1.1.1 e 1.0.0.1)
-echo   3. Restaurar para Automatico (DHCP)
+echo   1. Google DNS [8.8.8.8 e 8.8.4.4]
+echo   2. Cloudflare DNS [1.1.1.1 e 1.0.0.1]
+echo   3. Restaurar para Automatico [DHCP]
 echo   0. Cancelar
 echo.
+set "opt_dns="
 set /p opt_dns="Opcao: "
-if "%opt_dns%"=="1" (
-    powershell -NoProfile -Command "Get-NetAdapter | Where-Object Status -eq 'Up' | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ServerAddresses ('8.8.8.8','8.8.4.4') }"
-    echo [OK] DNS configurado para Google DNS (8.8.8.8 / 8.8.4.4)
-)
-if "%opt_dns%"=="2" (
-    powershell -NoProfile -Command "Get-NetAdapter | Where-Object Status -eq 'Up' | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ServerAddresses ('1.1.1.1','1.0.0.1') }"
-    echo [OK] DNS configurado para Cloudflare DNS (1.1.1.1 / 1.0.0.1)
-)
-if "%opt_dns%"=="3" (
-    powershell -NoProfile -Command "Get-NetAdapter | Where-Object Status -eq 'Up' | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ResetServerAddresses }"
-    echo [OK] DNS restaurado para obtencao automatica (DHCP)
-)
-echo.
+if "%opt_dns%"=="1" goto DNS_GOOGLE
+if "%opt_dns%"=="2" goto DNS_CLOUDFLARE
+if "%opt_dns%"=="3" goto DNS_DHCP
+goto MENU_REDE
+
+:DNS_GOOGLE
+powershell -NoProfile -Command "Get-NetAdapter | Where-Object Status -eq 'Up' | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ServerAddresses ('8.8.8.8','8.8.4.4') }"
+echo [OK] DNS configurado para Google DNS [8.8.8.8 / 8.8.4.4]
+pause
+goto MENU_REDE
+
+:DNS_CLOUDFLARE
+powershell -NoProfile -Command "Get-NetAdapter | Where-Object Status -eq 'Up' | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ServerAddresses ('1.1.1.1','1.0.0.1') }"
+echo [OK] DNS configurado para Cloudflare DNS [1.1.1.1 / 1.0.0.1]
+pause
+goto MENU_REDE
+
+:DNS_DHCP
+powershell -NoProfile -Command "Get-NetAdapter | Where-Object Status -eq 'Up' | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ResetServerAddresses }"
+echo [OK] DNS restaurado para obtencao automatica [DHCP]
 pause
 goto MENU_REDE
 
@@ -242,6 +257,7 @@ echo   6. Reiniciar o Windows Explorer (Destravar barra de tarefas)
 echo.
 echo   0. Voltar ao Menu Principal
 echo ===============================================================================
+set "opt_sis="
 set /p opt_sis="Escolha uma opcao [0-6]: "
 
 if "%opt_sis%"=="1" goto SIS_SFC
@@ -349,6 +365,7 @@ echo   4. Abrir Central de Dispositivos e Impressoras
 echo.
 echo   0. Voltar ao Menu Principal
 echo ===============================================================================
+set "opt_prt="
 set /p opt_prt="Escolha uma opcao [0-4]: "
 
 if "%opt_prt%"=="1" goto PRT_DESTRAVAR
@@ -409,14 +426,15 @@ echo ===========================================================================
 echo                   [4] LIMPEZA DE DISCO, CACHE E OTIMIZACAO
 echo ===============================================================================
 echo.
-echo   1. Limpeza Completa de Arquivos Temporarios (%temp%, Windows\Temp, Prefetch)
-echo   2. Limpar Cache de Downloads do Windows Update (SoftwareDistribution)
+echo   1. Limpeza Completa de Arquivos Temporarios (Temp, Windows Temp, Prefetch)
+echo   2. Limpar Cache de Downloads do Windows Update
 echo   3. Esvaziar Lixeira de Todas as Unidades
 echo   4. Limpar e Reconstruir Cache de Icones e Miniaturas do Windows
 echo   5. Abrir Ferramenta Nativa de Limpeza de Disco (cleanmgr.exe)
 echo.
 echo   0. Voltar ao Menu Principal
 echo ===============================================================================
+set "opt_cln="
 set /p opt_cln="Escolha uma opcao [0-5]: "
 
 if "%opt_cln%"=="1" goto CLN_TEMP
@@ -507,6 +525,7 @@ echo   6. Abrir Monitor de Recursos e Desempenho (resmon)
 echo.
 echo   0. Voltar ao Menu Principal
 echo ===============================================================================
+set "opt_hw="
 set /p opt_hw="Escolha uma opcao [0-6]: "
 
 if "%opt_hw%"=="1" goto HW_RESUMO
@@ -558,15 +577,18 @@ goto MENU_HARDWARE
 
 :HW_BATERIA
 cls
-echo Gerando relatorio de bateria (battery report)...
+echo Gerando relatorio de bateria [battery report]...
 powercfg /batteryreport /output "%USERPROFILE%\Desktop\Relatorio_Bateria_%COMPUTERNAME%.html" >nul 2>&1
-if exist "%USERPROFILE%\Desktop\Relatorio_Bateria_%COMPUTERNAME%.html" (
-    echo [SUCESSO] Relatorio salvo na sua Area de Trabalho:
-    echo %USERPROFILE%\Desktop\Relatorio_Bateria_%COMPUTERNAME%.html
-    start "" "%USERPROFILE%\Desktop\Relatorio_Bateria_%COMPUTERNAME%.html"
-) else (
-    echo [AVISO] Nao foi possivel gerar o relatorio. Este dispositivo pode nao possuir bateria (Desktop).
-)
+if not exist "%USERPROFILE%\Desktop\Relatorio_Bateria_%COMPUTERNAME%.html" goto BATERIA_FALHA
+
+echo [SUCESSO] Relatorio salvo na sua Area de Trabalho:
+echo %USERPROFILE%\Desktop\Relatorio_Bateria_%COMPUTERNAME%.html
+start "" "%USERPROFILE%\Desktop\Relatorio_Bateria_%COMPUTERNAME%.html"
+pause
+goto MENU_HARDWARE
+
+:BATERIA_FALHA
+echo [AVISO] Nao foi possivel gerar o relatorio. Este dispositivo pode nao possuir bateria [Desktop].
 echo.
 pause
 goto MENU_HARDWARE
@@ -612,7 +634,7 @@ goto MENU_HARDWARE
 :MENU_USUARIO_GPO
 cls
 echo ===============================================================================
-echo            [6] CONTAS DE USUARIO, RESTAURACAO E GPO (DOMINIO)
+echo            [6] CONTAS DE USUARIO, RESTAURACAO E GPO [DOMINIO]
 echo ===============================================================================
 echo.
 echo   1. Forcar Atualizacao de Diretivas de Grupo (gpupdate /force)
@@ -624,6 +646,7 @@ echo   6. Criar Ponto de Restauracao do Sistema Imediato
 echo.
 echo   0. Voltar ao Menu Principal
 echo ===============================================================================
+set "opt_usr="
 set /p opt_usr="Escolha uma opcao [0-6]: "
 
 if "%opt_usr%"=="1" goto USR_GPUPDATE
@@ -637,7 +660,7 @@ goto MENU_USUARIO_GPO
 
 :USR_GPUPDATE
 cls
-echo Atualizando politicas de grupo (GPO)...
+echo Atualizando politicas de grupo [GPO]...
 gpupdate /force
 echo.
 pause
@@ -720,6 +743,7 @@ echo  11. Painel de Controle Classico (control)
 echo.
 echo   0. Voltar ao Menu Principal
 echo ===============================================================================
+set "opt_ctl="
 set /p opt_ctl="Selecione o atalho desejado [0-11]: "
 
 if "%opt_ctl%"=="1" start ncpa.cpl & goto MENU_ATALHOS
@@ -743,17 +767,18 @@ goto MENU_ATALHOS
 :VARREDURA_AUTO
 cls
 echo ===============================================================================
-echo                     MODO VARREDURA AUTOMATICA (QUICK FIX)
+echo                     MODO VARREDURA AUTOMATICA [QUICK FIX]
 echo ===============================================================================
 echo Esta rotina automatica executa os seguintes passos em sequencia:
-echo  1. Limpeza de temporarios (%temp%, Windows\Temp, Prefetch)
+echo  1. Limpeza de temporarios (Temp, Windows Temp, Prefetch)
 echo  2. Esvaziamento da Lixeira
 echo  3. Limpeza de cache DNS (Flush DNS)
-echo  4. Redefinicao de catálogo Winsock e TCP/IP
+echo  4. Redefinicao de catalogo Winsock e TCP/IP
 echo  5. Destravamento e limpeza do Spooler de Impressao
 echo  6. Verificacao de integridade de arquivos do Windows (SFC /Scannow)
 echo ===============================================================================
 echo.
+set "confirm="
 set /p confirm="Deseja iniciar a varredura completa agora? (S/N): "
 if /i not "%confirm%"=="S" goto MAIN_MENU
 
