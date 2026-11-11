@@ -22,7 +22,7 @@ if %errorLevel% neq 0 (
     echo  [AVISO] Privilegios de Administrador necessarios para tarefas de Help Desk.
     echo  Solicitando confirmacao de Administrador [UAC]...
     echo ===============================================================================
-    powershell -NoProfile -Command "Start-Process cmd.exe -ArgumentList '/k `\"%~f0`\"' -Verb RunAs" 2>nul
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "Start-Process cmd.exe -ArgumentList '/k `\"%~f0`\"' -Verb RunAs" 2>nul
     if %errorLevel% neq 0 (
         echo.
         echo [ERRO] Nao foi possivel obter privilegios de Administrador automaticamente.
@@ -34,6 +34,10 @@ if %errorLevel% neq 0 (
     )
     exit /b
 )
+
+:: Garante que o diretorio de trabalho seja o do pendrive / script (evita rodar em System32)
+cd /d "%~dp0"
+if not exist "%~dp0Relatorios" mkdir "%~dp0Relatorios" >nul 2>&1
 
 :: ----------------------------------------------------------------------------
 :: MENU PRINCIPAL
@@ -140,7 +144,7 @@ echo ===========================================================================
 echo CONSULTANDO IP PUBLICO / EXTERNO NA INTERNET:
 echo ===============================================================================
 echo Aguarde...
-powershell -NoProfile -Command "try { $ip = (Invoke-RestMethod -Uri 'https://api.ipify.org' -TimeoutSec 4).Trim(); Write-Host 'Seu IP Publico e:' -ForegroundColor Green; Write-Host $ip -ForegroundColor Yellow } catch { Write-Host 'Nao foi possivel obter o IP publico. Verifique a conexao com a internet.' -ForegroundColor Red }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $ip = (Invoke-RestMethod -Uri 'https://api.ipify.org' -TimeoutSec 4).Trim(); Write-Host 'Seu IP Publico e:' -ForegroundColor Green; Write-Host $ip -ForegroundColor Yellow } catch { Write-Host 'Nao foi possivel obter o IP publico. Verifique a conexao com a internet.' -ForegroundColor Red }"
 echo.
 pause
 goto MENU_REDE
@@ -219,7 +223,7 @@ cls
 echo ===============================================================================
 echo REINICIANDO ADAPTADORES DE REDE ATIVOS (RESET DE PLACA)
 echo ===============================================================================
-powershell -NoProfile -Command "Get-NetAdapter | Where-Object Status -eq 'Up' | ForEach-Object { Write-Host 'Reiniciando adaptador:' $_.Name; Restart-NetAdapter -Name $_.Name -Confirm:$false }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-NetAdapter | Where-Object Status -eq 'Up' | ForEach-Object { Write-Host 'Reiniciando adaptador:' $_.Name; Restart-NetAdapter -Name $_.Name -Confirm:$false }"
 echo.
 echo [OK] Adaptadores reiniciados com sucesso!
 pause
@@ -234,7 +238,7 @@ echo ATENCAO: use apenas em computadores que voce administra e com autorizacao
 echo do responsavel. As senhas serao exibidas na tela.
 set /p CONF_WIFI=Deseja continuar? (S/N): 
 if /i not "%CONF_WIFI%"=="S" goto MENU_REDE
-powershell -NoProfile -Command "(netsh wlan show profiles) | Select-String '\:(.+)$' | ForEach-Object { $name = $_.Matches.Groups[1].Value.Trim(); $_ } | ForEach-Object { $profile = (netsh wlan show profile name=\"$name\" key=clear); $pass = ($profile | Select-String 'Key Content\s*:\s*(.+)$'); if ($pass) { [PSCustomObject]@{ 'Rede Wi-Fi' = $name; 'Senha' = $pass.Matches.Groups[1].Value.Trim() } } else { [PSCustomObject]@{ 'Rede Wi-Fi' = $name; 'Senha' = '[Sem Senha / Aberta]' } } } | Format-Table -AutoSize"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "(netsh wlan show profiles) | Select-String '\:(.+)$' | ForEach-Object { $name = $_.Matches.Groups[1].Value.Trim(); $_ } | ForEach-Object { $profile = (netsh wlan show profile name=\"$name\" key=clear); $pass = ($profile | Select-String 'Key Content\s*:\s*(.+)$'); if ($pass) { [PSCustomObject]@{ 'Rede Wi-Fi' = $name; 'Senha' = $pass.Matches.Groups[1].Value.Trim() } } else { [PSCustomObject]@{ 'Rede Wi-Fi' = $name; 'Senha' = '[Sem Senha / Aberta]' } } } | Format-Table -AutoSize"
 echo.
 pause
 goto MENU_REDE
@@ -242,10 +246,14 @@ goto MENU_REDE
 :REDE_BACKUP_WIFI
 cls
 echo ===============================================================================
-echo EXPORTANDO PERFIS E CHAVES DE WI-FI PARA A AREA DE TRABALHO
+echo EXPORTANDO PERFIS E CHAVES DE WI-FI
 echo ===============================================================================
 netsh wlan export profile folder="%USERPROFILE%\Desktop" key=clear >nul 2>&1
-echo [OK] Perfis de rede Wi-Fi salvos em formato XML na sua Area de Trabalho!
+if not exist "%~dp0Relatorios\WiFi_%COMPUTERNAME%" mkdir "%~dp0Relatorios\WiFi_%COMPUTERNAME%" >nul 2>&1
+netsh wlan export profile folder="%~dp0Relatorios\WiFi_%COMPUTERNAME%" key=clear >nul 2>&1
+echo [OK] Perfis salvos com sucesso:
+echo - Area de Trabalho: %USERPROFILE%\Desktop\
+echo - Pasta do Pendrive: %~dp0Relatorios\WiFi_%COMPUTERNAME%\
 echo.
 pause
 goto MENU_REDE
@@ -268,19 +276,19 @@ if "%opt_dns%"=="3" goto DNS_DHCP
 goto MENU_REDE
 
 :DNS_GOOGLE
-powershell -NoProfile -Command "Get-NetAdapter | Where-Object Status -eq 'Up' | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ServerAddresses ('8.8.8.8','8.8.4.4') }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-NetAdapter | Where-Object Status -eq 'Up' | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ServerAddresses ('8.8.8.8','8.8.4.4') }"
 echo [OK] DNS configurado para Google DNS [8.8.8.8 / 8.8.4.4]
 pause
 goto MENU_REDE
 
 :DNS_CLOUDFLARE
-powershell -NoProfile -Command "Get-NetAdapter | Where-Object Status -eq 'Up' | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ServerAddresses ('1.1.1.1','1.0.0.1') }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-NetAdapter | Where-Object Status -eq 'Up' | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ServerAddresses ('1.1.1.1','1.0.0.1') }"
 echo [OK] DNS configurado para Cloudflare DNS [1.1.1.1 / 1.0.0.1]
 pause
 goto MENU_REDE
 
 :DNS_DHCP
-powershell -NoProfile -Command "Get-NetAdapter | Where-Object Status -eq 'Up' | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ResetServerAddresses }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-NetAdapter | Where-Object Status -eq 'Up' | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ResetServerAddresses }"
 echo [OK] DNS restaurado para obtencao automatica [DHCP]
 pause
 goto MENU_REDE
@@ -399,7 +407,7 @@ cls
 echo ===============================================================================
 echo ATUALIZANDO PROGRAMAS INSTALADOS VIA WINGET
 echo ===============================================================================
-powershell -NoProfile -Command "if (Get-Command winget -ErrorAction SilentlyContinue) { winget upgrade --all --include-unknown } else { Write-Host 'Winget nao esta instalado neste sistema operacional.' -ForegroundColor Red }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Get-Command winget -ErrorAction SilentlyContinue) { winget upgrade --all --include-unknown } else { Write-Host 'Winget nao esta instalado neste sistema operacional.' -ForegroundColor Red }"
 echo.
 pause
 goto MENU_SISTEMA
@@ -486,7 +494,7 @@ cls
 echo ===============================================================================
 echo IMPRESSORAS INSTALADAS:
 echo ===============================================================================
-powershell -NoProfile -Command "Get-Printer | Select-Object Name, Type, DriverName, PortName, Shared, PrinterStatus | Format-Table -AutoSize"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-Printer | Select-Object Name, Type, DriverName, PortName, Shared, PrinterStatus | Format-Table -AutoSize"
 echo.
 pause
 goto MENU_IMPRESSAO
@@ -572,7 +580,7 @@ goto MENU_LIMPEZA
 :CLN_LIXEIRA
 cls
 echo Esvaziando Lixeira de todas as unidades...
-powershell -NoProfile -Command "Clear-RecycleBin -Force -ErrorAction SilentlyContinue"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Clear-RecycleBin -Force -ErrorAction SilentlyContinue"
 echo [OK] Lixeira esvaziada!
 echo.
 pause
@@ -671,13 +679,13 @@ echo ===========================================================================
 echo Computador: %COMPUTERNAME%  ^|  Usuario: %USERNAME%
 echo.
 echo [PROCESSADOR]
-powershell -NoProfile -Command "Get-CimInstance Win32_Processor | Select-Object Name, NumberOfCores, NumberOfLogicalProcessors | Format-List"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-CimInstance Win32_Processor | Select-Object Name, NumberOfCores, NumberOfLogicalProcessors | Format-List"
 echo [MEMORIA RAM]
-powershell -NoProfile -Command "Get-CimInstance Win32_OperatingSystem | Select-Object @{Name='RAM Total (GB)';Expression={[math]::Round($_.TotalVisibleMemorySize/1MB,2)}}, @{Name='RAM Livre (GB)';Expression={[math]::Round($_.FreePhysicalMemory/1MB,2)}} | Format-List"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-CimInstance Win32_OperatingSystem | Select-Object @{Name='RAM Total (GB)';Expression={[math]::Round($_.TotalVisibleMemorySize/1MB,2)}}, @{Name='RAM Livre (GB)';Expression={[math]::Round($_.FreePhysicalMemory/1MB,2)}} | Format-List"
 echo [PLACA-MAE E BIOS]
-powershell -NoProfile -Command "Get-CimInstance Win32_BaseBoard | Select-Object Manufacturer, Product, SerialNumber | Format-List"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-CimInstance Win32_BaseBoard | Select-Object Manufacturer, Product, SerialNumber | Format-List"
 echo [DISCOS DE ARMAZENAMENTO]
-powershell -NoProfile -Command "Get-CimInstance Win32_LogicalDisk -Filter 'DriveType=3' | Select-Object DeviceID, VolumeName, @{Name='Tam (GB)';Expression={[math]::Round($_.Size/1GB,2)}}, @{Name='Livre (GB)';Expression={[math]::Round($_.FreeSpace/1GB,2)}} | Format-Table -AutoSize"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-CimInstance Win32_LogicalDisk -Filter 'DriveType=3' | Select-Object DeviceID, VolumeName, @{Name='Tam (GB)';Expression={[math]::Round($_.Size/1GB,2)}}, @{Name='Livre (GB)';Expression={[math]::Round($_.FreeSpace/1GB,2)}} | Format-Table -AutoSize"
 echo.
 pause
 goto MENU_HARDWARE
@@ -687,7 +695,7 @@ cls
 echo ===============================================================================
 echo SAUDE DOS DISCOS FISICOS (SSD / HDD - STATUS SMART):
 echo ===============================================================================
-powershell -NoProfile -Command "Get-PhysicalDisk | Select-Object DeviceId, FriendlyName, MediaType, OperationalStatus, HealthStatus | Format-Table -AutoSize"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-PhysicalDisk | Select-Object DeviceId, FriendlyName, MediaType, OperationalStatus, HealthStatus | Format-Table -AutoSize"
 echo.
 pause
 goto MENU_HARDWARE
@@ -697,7 +705,7 @@ cls
 echo ===============================================================================
 echo ULTIMOS EVENTOS CRITICOS E ERROS DE SISTEMA REGISTRADOS:
 echo ===============================================================================
-powershell -NoProfile -Command "Get-WinEvent -FilterHashtable @{LogName='System'; Level=1,2} -MaxEvents 6 -ErrorAction SilentlyContinue | Select-Object TimeCreated, Id, Message | Format-List"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-WinEvent -FilterHashtable @{LogName='System'; Level=1,2} -MaxEvents 6 -ErrorAction SilentlyContinue | Select-Object TimeCreated, Id, Message | Format-List"
 echo.
 pause
 goto MENU_HARDWARE
@@ -707,7 +715,7 @@ cls
 echo ===============================================================================
 echo CONSULTA DE CHAVE OEM DO WINDOWS NA BIOS
 echo ===============================================================================
-powershell -NoProfile -Command "$key = (Get-CimInstance SoftwareLicensingService).OA3xOriginalProductKey; if ($key) { Write-Host 'Chave OEM encontrada na BIOS:' -ForegroundColor Green; Write-Host $key -ForegroundColor Yellow } else { Write-Host 'Nenhuma chave OEM encontrada na tabela MSDM da BIOS.' -ForegroundColor Red }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$key = (Get-CimInstance SoftwareLicensingService).OA3xOriginalProductKey; if ($key) { Write-Host 'Chave OEM encontrada na BIOS:' -ForegroundColor Green; Write-Host $key -ForegroundColor Yellow } else { Write-Host 'Nenhuma chave OEM encontrada na tabela MSDM da BIOS.' -ForegroundColor Red }"
 echo.
 pause
 goto MENU_HARDWARE
@@ -727,8 +735,10 @@ echo Gerando relatorio de bateria [battery report]...
 powercfg /batteryreport /output "%USERPROFILE%\Desktop\Relatorio_Bateria_%COMPUTERNAME%.html" >nul 2>&1
 if not exist "%USERPROFILE%\Desktop\Relatorio_Bateria_%COMPUTERNAME%.html" goto BATERIA_FALHA
 
-echo [SUCESSO] Relatorio salvo na sua Area de Trabalho:
-echo %USERPROFILE%\Desktop\Relatorio_Bateria_%COMPUTERNAME%.html
+echo [SUCESSO] Relatorio gerado com sucesso:
+echo - Area de Trabalho: %USERPROFILE%\Desktop\Relatorio_Bateria_%COMPUTERNAME%.html
+copy /y "%USERPROFILE%\Desktop\Relatorio_Bateria_%COMPUTERNAME%.html" "%~dp0Relatorios\Relatorio_Bateria_%COMPUTERNAME%.html" >nul 2>&1
+echo - Copia no Pendrive: %~dp0Relatorios\Relatorio_Bateria_%COMPUTERNAME%.html
 start "" "%USERPROFILE%\Desktop\Relatorio_Bateria_%COMPUTERNAME%.html"
 pause
 goto MENU_HARDWARE
@@ -764,7 +774,10 @@ echo Aguarde alguns instantes...
     wmic startup get caption,command,user 2>nul
 ) > "%OUT_TXT%"
 
-echo [CONCLUIDO] Relatorio salvo com sucesso na Area de Trabalho!
+copy /y "%OUT_TXT%" "%~dp0Relatorios\Diagnostico_%COMPUTERNAME%.txt" >nul 2>&1
+echo [CONCLUIDO] Relatorio gerado com sucesso:
+echo - Area de Trabalho: %OUT_TXT%
+echo - Copia no Pendrive: %~dp0Relatorios\Diagnostico_%COMPUTERNAME%.txt
 echo.
 pause
 goto MENU_HARDWARE
@@ -895,7 +908,7 @@ goto MENU_USUARIO_GPO
 :USR_CRIAR_PONTO
 cls
 echo Criando ponto de restauracao do sistema...
-powershell -NoProfile -Command "Checkpoint-Computer -Description 'WinHelpDesk_RestorePoint' -RestorePointType 'MODIFY_SETTINGS'" >nul 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Checkpoint-Computer -Description 'WinHelpDesk_RestorePoint' -RestorePointType 'MODIFY_SETTINGS'" >nul 2>&1
 echo [OK] Ponto de restauracao criado com sucesso!
 echo.
 pause
@@ -1107,7 +1120,7 @@ del /s /f /q "C:\Windows\Prefetch\*.*" >nul 2>&1
 del /s /f /q "%LOCALAPPDATA%\CrashDumps\*.*" >nul 2>&1
 
 echo [2/7] Esvaziando Lixeira...
-powershell -NoProfile -Command "Clear-RecycleBin -Force -ErrorAction SilentlyContinue" >nul 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Clear-RecycleBin -Force -ErrorAction SilentlyContinue" >nul 2>&1
 
 echo [3/7] Limpando cache do resolvedor DNS...
 ipconfig /flushdns >nul 2>&1
