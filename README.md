@@ -63,7 +63,7 @@ O **WinHelpDesk Toolkit** foi projetado para analistas de suporte técnico e adm
 | :--- | :--- |
 | **1. Rede & Internet** | Diagnóstico IP/DNS/MAC, consulta de IP Público, Ping (Google/Cloudflare), Tracert, Flush DNS, Release/Renew DHCP, Reset TCP/IP e Winsock, Reset de Placa de Rede, Revelador de senhas Wi-Fi, Backup de perfis Wi-Fi em XML e monitor de portas (`netstat`). |
 | **2. Reparo do Sistema** | `sfc /scannow`, `DISM RestoreHealth` e `CheckHealth`, Reset de componentes do Windows Update (`SoftwareDistribution`/`catroot2`), Reset da Microsoft Store (`wsreset`), Atualização de todos os programas via Winget, `chkdsk` agendado e reinício limpo do `explorer.exe`. |
-| **3. Impressão & Spooler** | Destravamento forçado da fila de impressão (interrupção do Spooler, exclusão de arquivos retidos em `spool\printers` e reinício), listagem de impressoras instaladas e acesso à central clássica. |
+| **3. Impressão & Spooler** | Destravamento forçado da fila de impressão (interrupção do Spooler, exclusão de arquivos retidos em `spool\printers` e reinício), listagem de impressoras instaladas, acesso à central clássica e **reset do contador de tinta residual em Epson L1250/L3250** (`tools\Epson-WasteReset.ps1`, via rede/SNMP, PowerShell nativo — ver nota abaixo). |
 | **4. Limpeza & Otimização** | Expurgo de `%TEMP%`, `Windows\Temp`, `Prefetch` e `CrashDumps`, limpeza de atualizações antigas, esvaziamento de lixeira, rebuild do cache de ícones (`IconCache.db`), TRIM para SSDs e defrag para HDDs (`defrag /O`), desativação de hibernação (`hiberfil.sys`) e plano de energia Ultimate Performance. |
 | **5. Diagnóstico & Hardware** | Resumo de CPU, RAM, Placa-Mãe e Discos, auditoria SMART e integridade física de SSD/HDD (`Get-PhysicalDisk`), consulta de erros críticos e BlueScreens recentes no Event Log, resgate de chave OEM do Windows gravada na BIOS (MSDM), auditoria de licença (`slmgr`), relatório de bateria em HTML e exportação completa em TXT. |
 | **6. Usuários & Diretivas (GPO)** | `gpupdate /force`, auditoria de diretivas aplicadas (`gpresult /r`), listagem de usuários e administradores locais, redefinição direta de senha local, criação expressa de usuário suporte administrador, toggle de administrador oculto e criação de Ponto de Restauração. |
@@ -90,6 +90,16 @@ WinHelpDesk.bat
 ```
 
 ---
+
+## 🖨️ Nota: Reset de tinta residual Epson (menu 3 → opção 5)
+
+Script auxiliar em `tools\Epson-WasteReset.ps1`, PowerShell nativo (sem Python, sem pip) — único módulo do toolkit que depende de um arquivo além do `.bat`, pela complexidade do protocolo. Fala com a impressora via SNMP pela rede; o modo USB não está incluído (precisaria de um pacote externo).
+
+- **Status** só lê (modelo, serial, contadores) — nunca escreve.
+- **Reset** e **reset temporário** exigem o nome de quem autoriza a ação (fica gravado em `tools\consent_log.jsonl`) e fazem backup da EEPROM antes de qualquer escrita.
+- **Resetar o contador não limpa a almofada física.** Se ela estiver realmente saturada, a tinta pode vazar dentro da impressora.
+- Firmware novo costuma travar a EEPROM pela rede; o script detecta isso e avisa para tentar via USB com o [projeto original](https://github.com/ehsun-sh/epson_waste_ink).
+- Ainda **não validado contra uma impressora real** — a lógica foi testada byte a byte contra uma implementação Python de referência e contra um simulador, mas não contra hardware físico.
 
 ## 🔒 Segurança e Boas Práticas
 
