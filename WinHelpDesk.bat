@@ -449,16 +449,18 @@ echo   1. Destravar Fila de Impressao (Limpa trabalhos presos e reinicia servico
 echo   2. Reiniciar Servico de Spooler de Impressao
 echo   3. Listar Todas as Impressoras Instaladas, Portas e Status
 echo   4. Abrir Central de Dispositivos e Impressoras
+echo   5. Resetar Contador de Tinta Residual - Epson L1250/L3250 (via rede/SNMP)
 echo.
 echo   0. Voltar ao Menu Principal
 echo ===============================================================================
 set "opt_prt="
-set /p opt_prt="Escolha uma opcao [0-4]: "
+set /p opt_prt="Escolha uma opcao [0-5]: "
 
 if "%opt_prt%"=="1" goto PRT_DESTRAVAR
 if "%opt_prt%"=="2" goto PRT_REINICIAR
 if "%opt_prt%"=="3" goto PRT_LISTAR
 if "%opt_prt%"=="4" goto PRT_ABRIR_PAINEL
+if "%opt_prt%"=="5" goto PRT_EPSON_RESET
 if "%opt_prt%"=="0" goto MAIN_MENU
 goto MENU_IMPRESSAO
 
@@ -501,6 +503,74 @@ goto MENU_IMPRESSAO
 
 :PRT_ABRIR_PAINEL
 start control printers
+goto MENU_IMPRESSAO
+
+:PRT_EPSON_RESET
+cls
+echo ===============================================================================
+echo         RESET DE CONTADOR DE TINTA RESIDUAL - EPSON L1250/L3250
+echo ===============================================================================
+echo.
+echo  Familia suportada: L1250, L3250, L3251, ET-2810, ET-2814 e variantes.
+echo  Funciona pela REDE (SNMP), sem instalar nada. Modo USB NAO esta aqui -
+echo  se a EEPROM estiver travada pela rede, use o projeto Python original.
+echo.
+echo  AVISO: resetar o contador NAO limpa a almofada fisica de tinta. Se ela
+echo  estiver realmente saturada, a tinta pode vazar dentro da impressora.
+echo  Troque/limpe a almofada (ou use reservatorio externo) antes do reset.
+echo ===============================================================================
+echo.
+set "epson_ip="
+set /p epson_ip="IP da impressora na rede (ex: 192.168.1.50): "
+if "%epson_ip%"=="" (
+    echo [ERRO] IP vazio. Voltando ao menu.
+    timeout /t 2 >nul
+    goto MENU_IMPRESSAO
+)
+echo.
+echo   1. Status (so leitura - mostra modelo, serie e contadores)
+echo   2. Reset permanente (grava na EEPROM - pede autorizacao e confirmacao)
+echo   3. Reset temporario (ate a impressora ser desligada - pede autorizacao)
+echo   0. Voltar
+echo.
+set "epson_act="
+set /p epson_act="Escolha uma opcao [0-3]: "
+
+if "%epson_act%"=="1" goto PRT_EPSON_STATUS
+if "%epson_act%"=="2" goto PRT_EPSON_RESET_PERM
+if "%epson_act%"=="3" goto PRT_EPSON_RESET_TEMP
+goto MENU_IMPRESSAO
+
+:PRT_EPSON_STATUS
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0tools\Epson-WasteReset.ps1" -Action status -Target "%epson_ip%"
+echo.
+pause
+goto MENU_IMPRESSAO
+
+:PRT_EPSON_RESET_PERM
+set "epson_auth="
+set /p epson_auth="Nome de quem autoriza este reset nesta impressora: "
+if "%epson_auth%"=="" (
+    echo [ERRO] Sem nome de autorizacao, a acao nao e feita.
+    timeout /t 2 >nul
+    goto MENU_IMPRESSAO
+)
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0tools\Epson-WasteReset.ps1" -Action reset -Target "%epson_ip%" -AuthorizedBy "%epson_auth%"
+echo.
+pause
+goto MENU_IMPRESSAO
+
+:PRT_EPSON_RESET_TEMP
+set "epson_auth="
+set /p epson_auth="Nome de quem autoriza este reset temporario nesta impressora: "
+if "%epson_auth%"=="" (
+    echo [ERRO] Sem nome de autorizacao, a acao nao e feita.
+    timeout /t 2 >nul
+    goto MENU_IMPRESSAO
+)
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0tools\Epson-WasteReset.ps1" -Action temp-reset -Target "%epson_ip%" -AuthorizedBy "%epson_auth%"
+echo.
+pause
 goto MENU_IMPRESSAO
 
 
